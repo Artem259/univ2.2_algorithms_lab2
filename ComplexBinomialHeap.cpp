@@ -5,15 +5,22 @@
 #include <cassert>
 #include "ComplexBinomialHeap.h"
 
-ComplexBinomialHeap::HeapNode::~HeapNode()
+void ComplexBinomialHeap::HeapNode::clear()
 {
-    delete child;
-    delete sibling;
+    if(child) child->clear();
+    if(sibling) sibling->clear();
+    //std::cout<<key<<std::endl;
+    delete this;
+}
+
+ComplexBinomialHeap::~ComplexBinomialHeap()
+{
+    if(!empty()) head->clear();
 }
 
 bool ComplexBinomialHeap::empty() const
 {
-    return head;
+    return !head;
 }
 
 Complex ComplexBinomialHeap::min() const

@@ -17,12 +17,15 @@ class ComplexBinomialHeap
         HeapNode* sibling; //right sibling
         size_t degree;
         HeapNode() : key(0), p(nullptr), child(nullptr), sibling(nullptr), degree(0) {};
+        HeapNode(const Complex& key, HeapNode* p, HeapNode* child, HeapNode* sibling, size_t degree)
+            : key(key), p(p), child(child), sibling(sibling), degree(degree) {};
         explicit HeapNode(const Complex& key) : key(key), p(nullptr), child(nullptr), sibling(nullptr), degree(0) {};
-        ~HeapNode();
+        void clear();
     };
     HeapNode* head;
 public:
     ComplexBinomialHeap() : head(nullptr) {}; //створення порожньої біноміальної піраміди
+    ~ComplexBinomialHeap();
     bool empty() const;
     Complex min() const; //пошук мінімального ключа
     //ComplexBinomialHeap merge(const ComplexBinomialHeap& first, const ComplexBinomialHeap& second); //злиття двох біноміальних пірамід
