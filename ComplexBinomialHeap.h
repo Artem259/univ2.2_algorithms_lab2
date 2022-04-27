@@ -22,11 +22,11 @@ class ComplexBinomialHeap
             : key(key), p(p), child(child), sibling(sibling), degree(degree) {};
         explicit HeapNode(const Complex& key) : key(key), p(nullptr), child(nullptr), sibling(nullptr), degree(0) {};
         void clearNodeTree();
+        void linkTo(HeapNode& target);
     };
     HeapNode* head;
 
     static ComplexBinomialHeap connect(ComplexBinomialHeap& first, ComplexBinomialHeap& second);
-    static void linkNodes(HeapNode& first, HeapNode& second);
 public:
     ComplexBinomialHeap() : head(nullptr) {}; //створення порожньої біноміальної піраміди
     ~ComplexBinomialHeap();

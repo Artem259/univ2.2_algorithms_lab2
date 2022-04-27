@@ -13,6 +13,14 @@ void ComplexBinomialHeap::HeapNode::clearNodeTree()
     delete this;
 }
 
+void ComplexBinomialHeap::HeapNode::linkTo(HeapNode& target)
+{
+    p = &target;
+    sibling = target.child;
+    target.child = this;
+    target.degree++;
+}
+
 ComplexBinomialHeap::~ComplexBinomialHeap()
 {
     clear();
@@ -91,11 +99,6 @@ ComplexBinomialHeap ComplexBinomialHeap::connect(ComplexBinomialHeap& first, Com
     first.head = nullptr;
     second.head = nullptr;
     return res;
-}
-
-void ComplexBinomialHeap::linkNodes(HeapNode& first, HeapNode& second)
-{
-    //...
 }
 
 ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, ComplexBinomialHeap& second)
