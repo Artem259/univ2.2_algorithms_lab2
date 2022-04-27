@@ -104,5 +104,33 @@ ComplexBinomialHeap ComplexBinomialHeap::connect(ComplexBinomialHeap& first, Com
 ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, ComplexBinomialHeap& second)
 {
     ComplexBinomialHeap res = connect(first, second);
-    //...
+    if(res.empty()) return res;
+    HeapNode* prev = nullptr;
+    HeapNode* curr = res.head;
+    HeapNode* next = res.head->sibling;
+    while(next)
+    {
+        if((curr->degree != next->degree) || (next->sibling && (curr->degree == next->sibling->degree)))
+        {
+            prev = curr;
+            curr = next;
+        }
+        else if(curr->key <= next->key)
+        {
+            curr->sibling = next->sibling;
+            next->linkTo(*curr);
+        }
+        else if(!prev)
+        {
+            res.head = next;
+        }
+        else
+        {
+            prev->sibling = next;
+            curr->linkTo(*next);
+            curr = next;
+        }
+        next = curr->sibling;
+    }
+    return res;
 }
