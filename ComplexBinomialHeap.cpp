@@ -134,3 +134,10 @@ ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, Compl
     }
     return res;
 }
+
+void ComplexBinomialHeap::insert(const Complex& k)
+{
+    ComplexBinomialHeap tempHeap;
+    tempHeap.head = new HeapNode(k, nullptr, nullptr, nullptr, 0);
+    *this = merge(*this, tempHeap);
+}
