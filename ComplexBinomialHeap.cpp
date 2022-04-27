@@ -5,22 +5,27 @@
 #include <cassert>
 #include "ComplexBinomialHeap.h"
 
-void ComplexBinomialHeap::HeapNode::clear()
+void ComplexBinomialHeap::HeapNode::clearNodeTree()
 {
-    if(child) child->clear();
-    if(sibling) sibling->clear();
+    if(child) child->clearNodeTree();
+    if(sibling) sibling->clearNodeTree();
     //std::cout<<key<<std::endl;
     delete this;
 }
 
 ComplexBinomialHeap::~ComplexBinomialHeap()
 {
-    if(!empty()) head->clear();
+    clear();
 }
 
 bool ComplexBinomialHeap::empty() const
 {
     return !head;
+}
+
+void ComplexBinomialHeap::clear()
+{
+    if(!empty()) head->clearNodeTree();
 }
 
 Complex ComplexBinomialHeap::min() const
@@ -34,4 +39,67 @@ Complex ComplexBinomialHeap::min() const
         curr = curr->sibling;
     }
     return res;
+}
+
+ComplexBinomialHeap ComplexBinomialHeap::connect(ComplexBinomialHeap& first, ComplexBinomialHeap& second)
+{
+    ComplexBinomialHeap res;
+    if(!first.empty() && !second.empty())
+    {
+        HeapNode* a = first.head;
+        HeapNode* b = second.head;
+        HeapNode *resLast, *curr;
+        while(a && b)
+        {
+            if(a->degree < b->degree)
+            {
+                curr = a;
+                a = a->sibling;
+            }
+            else
+            {
+                curr = b;
+                b = b->sibling;
+            }
+            if(!res.head)
+            {
+                res.head = curr;
+                resLast = curr;
+            }
+            else
+            {
+                resLast->sibling = curr;
+                resLast = curr;
+            }
+        }
+        HeapNode* end = a ? a : b;
+        while(end)
+        {
+            resLast->sibling = end;
+            resLast = end;
+            end = end->sibling;
+        }
+    }
+    else if(first.empty())
+    {
+        res.head = second.head;
+    }
+    else
+    {
+        res.head = first.head;
+    }
+    first.head = nullptr;
+    second.head = nullptr;
+    return res;
+}
+
+void ComplexBinomialHeap::linkNodes(HeapNode& first, HeapNode& second)
+{
+    //...
+}
+
+ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, ComplexBinomialHeap& second)
+{
+    ComplexBinomialHeap res = connect(first, second);
+    //...
 }
