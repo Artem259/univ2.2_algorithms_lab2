@@ -35,7 +35,7 @@ public:
     Complex min() const; //пошук мінімального ключа
     static ComplexBinomialHeap merge(ComplexBinomialHeap& first, ComplexBinomialHeap& second); //злиття двох біноміальних пірамід
     void insert(const Complex& k); //вставка вузла
-    //Complex extractMin(); //вилучення мінімального вузла
+    Complex extractMin(); //вилучення мінімального вузла
     //bool decrease(const Complex& old, const Complex& current); //зменшення ключа
     //bool remove(const Complex& k); //видалення ключа
 };

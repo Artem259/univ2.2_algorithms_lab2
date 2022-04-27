@@ -28,12 +28,16 @@ ComplexBinomialHeap::~ComplexBinomialHeap()
 
 bool ComplexBinomialHeap::empty() const
 {
-    return !head;
+    return (head == nullptr);
 }
 
 void ComplexBinomialHeap::clear()
 {
-    if(!empty()) head->clearNodeTree();
+    if(!empty())
+    {
+        head->clearNodeTree();
+        head = nullptr;
+    }
 }
 
 Complex ComplexBinomialHeap::min() const
@@ -140,4 +144,33 @@ void ComplexBinomialHeap::insert(const Complex& k)
     ComplexBinomialHeap tempHeap;
     tempHeap.head = new HeapNode(k, nullptr, nullptr, nullptr, 0);
     *this = merge(*this, tempHeap);
+}
+
+Complex ComplexBinomialHeap::extractMin()
+{
+    assert(!empty());
+    Complex min = this->min();
+    HeapNode *prev(nullptr), *curr(head), *next(nullptr);
+    while(curr->key != min)
+    {
+        prev = curr;
+        curr = curr->sibling;
+    }
+    if(!prev) head = curr->sibling;
+    else prev->sibling = curr->sibling;
+    curr = curr->child;
+    delete curr->p;
+    prev = nullptr;
+    while(curr)
+    {
+        next = curr->sibling;
+        curr->sibling = prev;
+        prev = curr;
+        curr->p = nullptr;
+        curr = next;
+    }
+    ComplexBinomialHeap tempHeap;
+    tempHeap.head = prev;
+    *this = merge(*this, tempHeap);
+    return min;
 }
