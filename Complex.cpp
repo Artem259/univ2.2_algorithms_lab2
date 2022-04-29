@@ -9,10 +9,10 @@
 std::random_device rd;
 std::mt19937 mersenne(rd());
 
-void Complex::randomIntComponents(const long long &n)
+void Complex::randomIntComponents(const unsigned &n)
 {
-    a = mersenne() % (std::abs(n)+1);
-    b = mersenne() % (std::abs(n)+1);
+    a = mersenne() % (n+1);
+    b = mersenne() % (n+1);
     if(mersenne() % 2) a=-a;
     if(mersenne() % 2) b=-b;
 }

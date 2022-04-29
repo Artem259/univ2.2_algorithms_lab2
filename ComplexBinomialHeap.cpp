@@ -166,7 +166,7 @@ HeapNode* ComplexBinomialHeap::extractMin()
     assert(!empty());
     size_t prevSize = sizeN;
     Complex min = this->min();
-    HeapNode *prev(nullptr), *curr(head), *next(nullptr);
+    HeapNode *prev(nullptr), *curr(head), *next;
     while(curr->key != min)
     {
         prev = curr;

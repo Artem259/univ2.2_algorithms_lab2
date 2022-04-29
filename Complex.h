@@ -16,7 +16,7 @@ public:
     Complex(double a, double b) : a(a), b(b) {};
     explicit Complex(double a) : a(a), b(0) {};
 
-    void randomIntComponents(const long long &n);
+    void randomIntComponents(const unsigned &n);
 
     friend double abs(const Complex &c);
     friend std::ostream& operator <<(std::ostream &out, const Complex &c);
