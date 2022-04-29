@@ -5,7 +5,7 @@
 #include <cassert>
 #include "ComplexBinomialHeap.h"
 
-void ComplexBinomialHeap::HeapNode::clearNodeTree()
+void HeapNode::clearNodeTree()
 {
     if(child) child->clearNodeTree();
     if(sibling) sibling->clearNodeTree();
@@ -13,12 +13,31 @@ void ComplexBinomialHeap::HeapNode::clearNodeTree()
     delete this;
 }
 
-void ComplexBinomialHeap::HeapNode::linkTo(HeapNode& target)
+void HeapNode::linkTo(HeapNode* target)
 {
-    p = &target;
-    sibling = target.child;
-    target.child = this;
-    target.degree++;
+    p = target;
+    sibling = target->child;
+    target->child = this;
+    (target->degree)++;
+}
+
+void HeapNode::isolate()
+{
+    p = nullptr;
+    child = nullptr;
+    sibling = nullptr;
+    degree = 0;
+}
+
+Complex HeapNode::getKey()
+{
+    return key;
+}
+
+void ComplexBinomialHeap::reset()
+{
+    head = nullptr;
+    sizeN = 0;
 }
 
 ComplexBinomialHeap::~ComplexBinomialHeap()
@@ -31,13 +50,18 @@ bool ComplexBinomialHeap::empty() const
     return (head == nullptr);
 }
 
+bool ComplexBinomialHeap::size() const
+{
+    return sizeN;
+}
+
 void ComplexBinomialHeap::clear()
 {
     if(!empty())
     {
         head->clearNodeTree();
-        head = nullptr;
     }
+    reset();
 }
 
 Complex ComplexBinomialHeap::min() const
@@ -53,13 +77,13 @@ Complex ComplexBinomialHeap::min() const
     return res;
 }
 
-ComplexBinomialHeap ComplexBinomialHeap::connect(ComplexBinomialHeap& first, ComplexBinomialHeap& second)
+ComplexBinomialHeap* ComplexBinomialHeap::connect(ComplexBinomialHeap* first, ComplexBinomialHeap* second)
 {
-    ComplexBinomialHeap res;
-    if(!first.empty() && !second.empty())
+    auto res = new ComplexBinomialHeap();
+    if(!first->empty() && !second->empty())
     {
-        HeapNode* a = first.head;
-        HeapNode* b = second.head;
+        HeapNode* a = first->head;
+        HeapNode* b = second->head;
         HeapNode *resLast, *curr;
         while(a && b)
         {
@@ -73,9 +97,9 @@ ComplexBinomialHeap ComplexBinomialHeap::connect(ComplexBinomialHeap& first, Com
                 curr = b;
                 b = b->sibling;
             }
-            if(!res.head)
+            if(!res->head)
             {
-                res.head = curr;
+                res->head = curr;
                 resLast = curr;
             }
             else
@@ -92,26 +116,27 @@ ComplexBinomialHeap ComplexBinomialHeap::connect(ComplexBinomialHeap& first, Com
             end = end->sibling;
         }
     }
-    else if(first.empty())
+    else if(first->empty())
     {
-        res.head = second.head;
+        res->head = second->head;
     }
     else
     {
-        res.head = first.head;
+        res->head = first->head;
     }
-    first.head = nullptr;
-    second.head = nullptr;
+    res->sizeN = first->sizeN + second->sizeN;
+    first->reset();
+    second->reset();
     return res;
 }
 
-ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, ComplexBinomialHeap& second)
+ComplexBinomialHeap* ComplexBinomialHeap::merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second)
 {
-    ComplexBinomialHeap res = connect(first, second);
-    if(res.empty()) return res;
+    ComplexBinomialHeap* res = connect(first, second);
+    if(res->empty()) return res;
     HeapNode* prev = nullptr;
-    HeapNode* curr = res.head;
-    HeapNode* next = res.head->sibling;
+    HeapNode* curr = res->head;
+    HeapNode* next = res->head->sibling;
     while(next)
     {
         if((curr->degree != next->degree) || (next->sibling && (curr->degree == next->sibling->degree)))
@@ -122,16 +147,19 @@ ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, Compl
         else if(curr->key <= next->key)
         {
             curr->sibling = next->sibling;
-            next->linkTo(*curr);
-        }
-        else if(!prev)
-        {
-            res.head = next;
+            next->linkTo(curr);
         }
         else
         {
-            prev->sibling = next;
-            curr->linkTo(*next);
+            if(!prev)
+            {
+                res->head = next;
+            }
+            else
+            {
+                prev->sibling = next;
+            }
+            curr->linkTo(next);
             curr = next;
         }
         next = curr->sibling;
@@ -141,14 +169,23 @@ ComplexBinomialHeap ComplexBinomialHeap::merge(ComplexBinomialHeap& first, Compl
 
 void ComplexBinomialHeap::insert(const Complex& k)
 {
-    ComplexBinomialHeap tempHeap;
-    tempHeap.head = new HeapNode(k, nullptr, nullptr, nullptr, 0);
-    *this = merge(*this, tempHeap);
+    assert(k != Complex(0));
+    auto tempHeap = new ComplexBinomialHeap;
+    auto newNode = new HeapNode(k, nullptr, nullptr, nullptr, 0);
+    tempHeap->head = newNode;
+    tempHeap->sizeN = 1;
+    auto mergedHeap = merge(this, tempHeap);
+    *this = *mergedHeap;
+    tempHeap->reset();
+    mergedHeap->reset();
+    delete tempHeap;
+    delete mergedHeap;
 }
 
-Complex ComplexBinomialHeap::extractMin()
+HeapNode* ComplexBinomialHeap::extractMin()
 {
     assert(!empty());
+    size_t prevSize = sizeN;
     Complex min = this->min();
     HeapNode *prev(nullptr), *curr(head), *next(nullptr);
     while(curr->key != min)
@@ -158,19 +195,36 @@ Complex ComplexBinomialHeap::extractMin()
     }
     if(!prev) head = curr->sibling;
     else prev->sibling = curr->sibling;
+    auto res = curr;
     curr = curr->child;
-    delete curr->p;
-    prev = nullptr;
-    while(curr)
+    if(curr)
     {
-        next = curr->sibling;
-        curr->sibling = prev;
-        prev = curr;
         curr->p = nullptr;
-        curr = next;
+        prev = nullptr;
+        while(curr)
+        {
+            next = curr->sibling;
+            curr->sibling = prev;
+            prev = curr;
+            curr->p = nullptr;
+            curr = next;
+        }
+        auto tempHeap = new ComplexBinomialHeap;
+        tempHeap->head = prev;
+        auto mergedHeap = merge(this, tempHeap);
+        this->head = mergedHeap->head;
+        tempHeap->reset();
+        mergedHeap->reset();
+        delete tempHeap;
+        delete mergedHeap;
     }
-    ComplexBinomialHeap tempHeap;
-    tempHeap.head = prev;
-    *this = merge(*this, tempHeap);
-    return min;
+    sizeN = prevSize-1;
+    res->isolate();
+    return res;
+}
+
+bool ComplexBinomialHeap::decrease(const Complex& old, const Complex& current)
+{
+    assert(current != Complex(0));
+    //...
 }
