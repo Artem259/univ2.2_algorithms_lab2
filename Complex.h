@@ -9,14 +9,14 @@
 
 class Complex
 {
-    long long a; //a+b*i
-    long long b; //a+b*i
+    double a; //a+b*i
+    double b; //a+b*i
 public:
     Complex() : a(0), b(0) {};
-    Complex(long long a, long long b) : a(a), b(b) {};
-    explicit Complex(long long a) : a(a), b(0) {};
+    Complex(double a, double b) : a(a), b(b) {};
+    explicit Complex(double a) : a(a), b(0) {};
 
-    void random(const long long &n);
+    void randomIntComponents(const long long &n);
 
     friend double abs(const Complex &c);
     friend std::ostream& operator <<(std::ostream &out, const Complex &c);
