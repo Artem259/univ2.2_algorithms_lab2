@@ -130,9 +130,9 @@ ComplexBinomialHeap* ComplexBinomialHeap::connect(ComplexBinomialHeap* first, Co
     return res;
 }
 
-ComplexBinomialHeap* ComplexBinomialHeap::merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second)
+ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second)
 {
-    ComplexBinomialHeap* res = connect(first, second);
+    ComplexBinomialHeap* res = ComplexBinomialHeap::connect(first, second);
     if(res->empty()) return res;
     HeapNode* prev = nullptr;
     HeapNode* curr = res->head;
@@ -167,7 +167,7 @@ ComplexBinomialHeap* ComplexBinomialHeap::merge(ComplexBinomialHeap* first, Comp
     return res;
 }
 
-void ComplexBinomialHeap::insert(const Complex& k)
+HeapNode* ComplexBinomialHeap::insert(const Complex& k)
 {
     assert(k != Complex(0));
     auto tempHeap = new ComplexBinomialHeap;
@@ -180,6 +180,7 @@ void ComplexBinomialHeap::insert(const Complex& k)
     mergedHeap->reset();
     delete tempHeap;
     delete mergedHeap;
+    return newNode;
 }
 
 HeapNode* ComplexBinomialHeap::extractMin()
@@ -223,8 +224,18 @@ HeapNode* ComplexBinomialHeap::extractMin()
     return res;
 }
 
-bool ComplexBinomialHeap::decrease(const Complex& old, const Complex& current)
+void decrease(HeapNode** node, const Complex& newKey)
 {
-    assert(current != Complex(0));
-    //...
+    assert(!(newKey > (*node)->key));
+    assert(newKey != Complex(0));
+    (*node)->key = newKey;
+    HeapNode* current = *node;
+    HeapNode* parent = current->p;
+    while(parent && (current->key < parent->key))
+    {
+        std::swap(current->key, parent->key);
+        current = parent;
+        parent = current->p;
+    }
+    *node = current;
 }

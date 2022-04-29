@@ -7,6 +7,9 @@
 
 #include "Complex.h"
 
+class HeapNode;
+class ComplexBinomialHeap;
+
 class HeapNode
 {
     Complex key;
@@ -24,8 +27,11 @@ class HeapNode
     void isolate();
 
     friend class ComplexBinomialHeap;
+    friend ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
+    friend void decrease(HeapNode** node, const Complex& newKey);
 public:
     Complex getKey();
+
 };
 
 class ComplexBinomialHeap
@@ -35,6 +41,10 @@ class ComplexBinomialHeap
 
     static ComplexBinomialHeap* connect(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
     void reset();
+
+    friend class HeapNode;
+    friend ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second); //злиття двох біноміальних пірамід
+    friend void decrease(HeapNode** node, const Complex& newKey); //зменшення ключа
 public:
     ComplexBinomialHeap() : head(nullptr), sizeN(0) {}; //створення порожньої біноміальної піраміди
     ~ComplexBinomialHeap();
@@ -42,13 +52,14 @@ public:
     bool size() const;
     void clear();
     Complex min() const; //пошук мінімального ключа
-    static ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second); //злиття двох біноміальних пірамід
-    void insert(const Complex& k); //вставка вузла
+    HeapNode* insert(const Complex& k); //вставка вузла
     HeapNode* extractMin(); //вилучення мінімального вузла
-    bool decrease(const Complex& old, const Complex& current); //зменшення ключа
 
     //bool remove(const Complex& k); //видалення ключа
 };
+
+ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
+void decrease(HeapNode** node, const Complex& newKey);
 
 
 #endif
