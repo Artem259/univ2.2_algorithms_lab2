@@ -9,7 +9,7 @@ void HeapNode::clearNodeTree()
 {
     if(child) child->clearNodeTree();
     if(sibling) sibling->clearNodeTree();
-    //std::cout<<key<<std::endl;
+    //std::cout<<"Deleted: "<<this<<" "<<key<<std::endl;
     delete this;
 }
 
@@ -29,7 +29,7 @@ void HeapNode::isolate()
     degree = 0;
 }
 
-Complex HeapNode::getKey()
+Complex HeapNode::getKey() const
 {
     return key;
 }
@@ -130,41 +130,19 @@ ComplexBinomialHeap* ComplexBinomialHeap::connect(ComplexBinomialHeap* first, Co
     return res;
 }
 
-ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second)
+void ComplexBinomialHeap::decreaseHelp(HeapNode** node, const Complex& newKey)
 {
-    ComplexBinomialHeap* res = ComplexBinomialHeap::connect(first, second);
-    if(res->empty()) return res;
-    HeapNode* prev = nullptr;
-    HeapNode* curr = res->head;
-    HeapNode* next = res->head->sibling;
-    while(next)
+    assert(!(newKey > (*node)->key));
+    (*node)->key = newKey;
+    HeapNode* current = *node;
+    HeapNode* parent = current->p;
+    while(parent && (current->key < parent->key))
     {
-        if((curr->degree != next->degree) || (next->sibling && (curr->degree == next->sibling->degree)))
-        {
-            prev = curr;
-            curr = next;
-        }
-        else if(curr->key <= next->key)
-        {
-            curr->sibling = next->sibling;
-            next->linkTo(curr);
-        }
-        else
-        {
-            if(!prev)
-            {
-                res->head = next;
-            }
-            else
-            {
-                prev->sibling = next;
-            }
-            curr->linkTo(next);
-            curr = next;
-        }
-        next = curr->sibling;
+        std::swap(current->key, parent->key);
+        current = parent;
+        parent = current->p;
     }
-    return res;
+    *node = current;
 }
 
 HeapNode* ComplexBinomialHeap::insert(const Complex& k)
@@ -224,18 +202,54 @@ HeapNode* ComplexBinomialHeap::extractMin()
     return res;
 }
 
+void ComplexBinomialHeap::remove(HeapNode** node)
+{
+    decreaseHelp(node,Complex(0));
+    auto removed = extractMin();
+    assert(removed == *node);
+    delete removed;
+    *node = nullptr;
+}
+
+ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second)
+{
+    ComplexBinomialHeap* res = ComplexBinomialHeap::connect(first, second);
+    if(res->empty()) return res;
+    HeapNode* prev = nullptr;
+    HeapNode* curr = res->head;
+    HeapNode* next = res->head->sibling;
+    while(next)
+    {
+        if((curr->degree != next->degree) || (next->sibling && (curr->degree == next->sibling->degree)))
+        {
+            prev = curr;
+            curr = next;
+        }
+        else if(curr->key <= next->key)
+        {
+            curr->sibling = next->sibling;
+            next->linkTo(curr);
+        }
+        else
+        {
+            if(!prev)
+            {
+                res->head = next;
+            }
+            else
+            {
+                prev->sibling = next;
+            }
+            curr->linkTo(next);
+            curr = next;
+        }
+        next = curr->sibling;
+    }
+    return res;
+}
+
 void decrease(HeapNode** node, const Complex& newKey)
 {
-    assert(!(newKey > (*node)->key));
     assert(newKey != Complex(0));
-    (*node)->key = newKey;
-    HeapNode* current = *node;
-    HeapNode* parent = current->p;
-    while(parent && (current->key < parent->key))
-    {
-        std::swap(current->key, parent->key);
-        current = parent;
-        parent = current->p;
-    }
-    *node = current;
+    ComplexBinomialHeap::decreaseHelp(node, newKey);
 }

@@ -10,6 +10,22 @@
 class HeapNode;
 class ComplexBinomialHeap;
 
+/*----------------------------------------------
+ * - Initialization:
+ * auto foo = new ComplexBinomialHeap();
+ * - Then:
+ * delete foo;
+ *
+ * - extractMin():
+ * auto bar = foo->extractMin();
+ * - Then:
+ * delete bar;
+ *
+ * - insert(...):
+ * auto bar = foo->insert(...);
+ * - Then: DO NOT delete
+ *----------------------------------------------*/
+
 class HeapNode
 {
     Complex key;
@@ -30,8 +46,7 @@ class HeapNode
     friend ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
     friend void decrease(HeapNode** node, const Complex& newKey);
 public:
-    Complex getKey();
-
+    Complex getKey() const;
 };
 
 class ComplexBinomialHeap
@@ -40,11 +55,12 @@ class ComplexBinomialHeap
     size_t sizeN;
 
     static ComplexBinomialHeap* connect(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
+    static void decreaseHelp(HeapNode** node, const Complex& newKey);
     void reset();
 
     friend class HeapNode;
-    friend ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second); //злиття двох біноміальних пірамід
-    friend void decrease(HeapNode** node, const Complex& newKey); //зменшення ключа
+    friend ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
+    friend void decrease(HeapNode** node, const Complex& newKey);
 public:
     ComplexBinomialHeap() : head(nullptr), sizeN(0) {}; //створення порожньої біноміальної піраміди
     ~ComplexBinomialHeap();
@@ -54,12 +70,10 @@ public:
     Complex min() const; //пошук мінімального ключа
     HeapNode* insert(const Complex& k); //вставка вузла
     HeapNode* extractMin(); //вилучення мінімального вузла
-
-    //bool remove(const Complex& k); //видалення ключа
+    void remove(HeapNode** node); //видалення ключа
 };
 
-ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second);
-void decrease(HeapNode** node, const Complex& newKey);
-
+ComplexBinomialHeap* merge(ComplexBinomialHeap* first, ComplexBinomialHeap* second); //злиття двох біноміальних пірамід
+void decrease(HeapNode** node, const Complex& newKey); //зменшення ключа
 
 #endif
