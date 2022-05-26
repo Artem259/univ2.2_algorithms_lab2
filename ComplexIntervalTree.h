@@ -6,6 +6,7 @@
 #define COMPLEXINTERVALTREE_H
 
 #include "Complex.h"
+#include <cstring>
 
 class Interval
 {
@@ -13,7 +14,7 @@ public:
     Complex low;
     Complex high;
 
-    Interval(Complex low, Complex high) : low(low), high(high) {};
+    Interval(Complex low, Complex high);
 };
 
 class ComplexIntervalTree
@@ -39,11 +40,14 @@ class ComplexIntervalTree
     TreeNode* head;
     TreeNode* nil;
 
+    void print_help(TreeNode* node, std::string indent, bool isLast) const;
+    static void maxFix(TreeNode* x);
     void leftRotate(TreeNode* x);
     void rightRotate(TreeNode* x);
     void insertFix(TreeNode* z);
 public:
     ComplexIntervalTree();
+    void print() const;
     void insert(const Interval& toInsert);
     void remove(const Interval& toRemove);
     Interval searchIntersect(const Interval& toSearch) const;

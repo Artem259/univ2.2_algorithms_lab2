@@ -2,17 +2,50 @@
 // Created by Artem on 26.05.2022.
 //
 
+#include <iostream>
+#include <cassert>
 #include "ComplexIntervalTree.h"
+
+Interval::Interval(Complex low, Complex high) : low(low), high(high)
+{
+    assert(low <= high);
+}
 
 Complex ComplexIntervalTree::TreeNode::key() const
 {
     return data.low;
 }
 
-ComplexIntervalTree::ComplexIntervalTree()
+void ComplexIntervalTree::print_help(TreeNode* node, std::string indent, bool isLast) const
 {
-    nil = new TreeNode(BLACK);
-    head = nil;
+    if(node == nil) return;
+    std::cout << indent;
+    if(isLast)
+    {
+        if(node != head)
+        {
+            std::cout << "L----";
+            indent += "      ";
+        }
+        else
+        {
+            indent += " ";
+        }
+    }
+    else
+    {
+        std::cout << "R----";
+        indent += "|     ";
+    }
+    std::string color = node->color == RED ? "RED" : "BLACK";
+    std::cout << "(" << node->key() << ") [" << color << "]" << std::endl;
+    print_help(node->right, indent, false);
+    print_help(node->left, indent, true);
+}
+
+void ComplexIntervalTree::maxFix(TreeNode* x)
+{
+    x->max = std::max(x->data.high, std::max(x->left->max, x->right->max));
 }
 
 void ComplexIntervalTree::leftRotate(TreeNode* x)
@@ -26,6 +59,8 @@ void ComplexIntervalTree::leftRotate(TreeNode* x)
     else x->p->right = y;
     y->left = x;
     x->p = y;
+    maxFix(x);
+    maxFix(y);
 }
 
 void ComplexIntervalTree::rightRotate(TreeNode* x)
@@ -39,6 +74,8 @@ void ComplexIntervalTree::rightRotate(TreeNode* x)
     else x->p->left = y;
     y->right = x;
     x->p = y;
+    maxFix(x);
+    maxFix(y);
 }
 
 void ComplexIntervalTree::insertFix(TreeNode* z)
@@ -53,12 +90,15 @@ void ComplexIntervalTree::insertFix(TreeNode* z)
                 z->p->color = BLACK;
                 y->color = BLACK;
                 z->p->p->color = RED;
+                maxFix(z);
+                maxFix(z->p);
                 z = z->p->p;
             }
             else
             {
                 if(z == z->p->right)
                 {
+                    maxFix(z);
                     z = z->p;
                     leftRotate(z);
                 }
@@ -75,12 +115,15 @@ void ComplexIntervalTree::insertFix(TreeNode* z)
                 z->p->color = BLACK;
                 y->color = BLACK;
                 z->p->p->color = RED;
+                maxFix(z);
+                maxFix(z->p);
                 z = z->p->p;
             }
             else
             {
                 if(z == z->p->left)
                 {
+                    maxFix(z);
                     z = z->p;
                     rightRotate(z);
                 }
@@ -91,6 +134,22 @@ void ComplexIntervalTree::insertFix(TreeNode* z)
         }
     }
     head->color = BLACK;
+    while(z != nil)
+    {
+        maxFix(z);
+        z = z->p;
+    }
+}
+
+ComplexIntervalTree::ComplexIntervalTree()
+{
+    nil = new TreeNode(BLACK);
+    head = nil;
+}
+
+void ComplexIntervalTree::print() const
+{
+    print_help(head, "", true);
 }
 
 void ComplexIntervalTree::insert(const Interval& toInsert)
@@ -106,10 +165,11 @@ void ComplexIntervalTree::insert(const Interval& toInsert)
     }
     z->p = y;
     if(y == nil) head = z;
-    else if(x->key() < y->key()) y->left = z;
+    else if(z->key() < y->key()) y->left = z;
     else y->right = z;
     z->left = nil;
     z->right = nil;
     z->color = RED;
+    z->max = z->data.high;
     insertFix(z);
 }
