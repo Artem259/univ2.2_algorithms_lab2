@@ -39,6 +39,8 @@ class ComplexIntervalTree
     TreeNode* head;
     TreeNode* nil;
 
+    void leftRotate(TreeNode* x);
+    void rightRotate(TreeNode* x);
     void insertFix(TreeNode* z);
 public:
     ComplexIntervalTree();

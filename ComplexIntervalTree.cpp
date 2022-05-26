@@ -15,6 +15,32 @@ ComplexIntervalTree::ComplexIntervalTree()
     head = nil;
 }
 
+void ComplexIntervalTree::leftRotate(TreeNode* x)
+{
+    auto y = x->right;
+    x->right = y->left;
+    if(y->left != nil) y->left->p = x;
+    y->p = x->p;
+    if(x->p == nil) head = y;
+    else if(x == x->p->left) x->p->left = y;
+    else x->p->right = y;
+    y->left = x;
+    x->p = y;
+}
+
+void ComplexIntervalTree::rightRotate(TreeNode* x)
+{
+    auto y = x->left;
+    x->left = y->right;
+    if(y->right != nil) y->right->p = x;
+    y->p = x->p;
+    if(x->p == nil) head = y;
+    else if(x == x->p->right) x->p->right = y;
+    else x->p->left = y;
+    y->right = x;
+    x->p = y;
+}
+
 void ComplexIntervalTree::insertFix(TreeNode* z)
 {
     while(z->p->color == RED)
@@ -34,11 +60,11 @@ void ComplexIntervalTree::insertFix(TreeNode* z)
                 if(z == z->p->right)
                 {
                     z = z->p;
-                    //!leftRotate(z);
+                    leftRotate(z);
                 }
                 z->p->color = BLACK;
                 z->p->p->color = RED;
-                //!rightRotate(z->p->p);
+                rightRotate(z->p->p);
             }
         }
         else
@@ -56,11 +82,11 @@ void ComplexIntervalTree::insertFix(TreeNode* z)
                 if(z == z->p->left)
                 {
                     z = z->p;
-                    //!rightRotate(z);
+                    rightRotate(z);
                 }
                 z->p->color = BLACK;
                 z->p->p->color = RED;
-                //!leftRotate(z->p->p);
+                leftRotate(z->p->p);
             }
         }
     }
