@@ -15,6 +15,58 @@ ComplexIntervalTree::ComplexIntervalTree()
     head = nil;
 }
 
+void ComplexIntervalTree::insertFix(TreeNode* z)
+{
+    while(z->p->color == RED)
+    {
+        if(z->p == z->p->p->left)
+        {
+            auto y = z->p->p->right;
+            if(y->color == RED)
+            {
+                z->p->color = BLACK;
+                y->color = BLACK;
+                z->p->p->color = RED;
+                z = z->p->p;
+            }
+            else
+            {
+                if(z == z->p->right)
+                {
+                    z = z->p;
+                    //!leftRotate(z);
+                }
+                z->p->color = BLACK;
+                z->p->p->color = RED;
+                //!rightRotate(z->p->p);
+            }
+        }
+        else
+        {
+            auto y = z->p->p->left;
+            if(y->color == RED)
+            {
+                z->p->color = BLACK;
+                y->color = BLACK;
+                z->p->p->color = RED;
+                z = z->p->p;
+            }
+            else
+            {
+                if(z == z->p->left)
+                {
+                    z = z->p;
+                    //!rightRotate(z);
+                }
+                z->p->color = BLACK;
+                z->p->p->color = RED;
+                //!leftRotate(z->p->p);
+            }
+        }
+    }
+    head->color = BLACK;
+}
+
 void ComplexIntervalTree::insert(const Interval& toInsert)
 {
     auto z = new TreeNode(toInsert);
