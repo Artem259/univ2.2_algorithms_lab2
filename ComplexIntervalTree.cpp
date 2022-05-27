@@ -11,20 +11,26 @@ Interval::Interval(Complex low, Complex high) : low(low), high(high)
     assert(low <= high);
 }
 
+std::ostream& operator <<(std::ostream& ofs, const Interval& interval)
+{
+    ofs << "[" << interval.low << ";" << interval.high << "]";
+    return ofs;
+}
+
 Complex ComplexIntervalTree::TreeNode::key() const
 {
     return data.low;
 }
 
-void ComplexIntervalTree::print_help(TreeNode* node, std::string indent, bool isLast) const
+void ComplexIntervalTree::print_help(std::ostream& ofs, TreeNode* node, std::string indent, bool isLast) const
 {
     if(node == nil) return;
-    std::cout << indent;
+    ofs << indent;
     if(isLast)
     {
         if(node != head)
         {
-            std::cout << "L----";
+            ofs << "L----";
             indent += "      ";
         }
         else
@@ -34,13 +40,13 @@ void ComplexIntervalTree::print_help(TreeNode* node, std::string indent, bool is
     }
     else
     {
-        std::cout << "R----";
+        ofs << "R----";
         indent += "|     ";
     }
     std::string color = node->color == RED ? "RED" : "BLACK";
-    std::cout << "(" << node->data.low << ";" << node->data.high << ") [" << node->max << "] [" << color << "]" << std::endl;
-    print_help(node->right, indent, false);
-    print_help(node->left, indent, true);
+    ofs << node->data << " (" << node->max << ") [" << color << "]" << std::endl;
+    print_help(ofs, node->right, indent, false);
+    print_help(ofs, node->left, indent, true);
 }
 
 void ComplexIntervalTree::maxFix(TreeNode* x)
@@ -244,11 +250,6 @@ ComplexIntervalTree::ComplexIntervalTree()
     error = false;
 }
 
-void ComplexIntervalTree::print() const
-{
-    print_help(head, "", true);
-}
-
 bool ComplexIntervalTree::errorState() const
 {
     return error;
@@ -331,4 +332,10 @@ Interval ComplexIntervalTree::searchIntersect(const Interval& toSearch)
         return {Complex{0}, Complex{0}};
     }
     return x->data;
+}
+
+std::ostream& operator <<(std::ostream& ofs, const ComplexIntervalTree& toOut)
+{
+    toOut.print_help(ofs, toOut.head, "", true);
+    return ofs;
 }

@@ -15,6 +15,8 @@ public:
     Complex high;
 
     Interval(Complex low, Complex high);
+
+    friend std::ostream& operator <<(std::ostream& ofs, const Interval& interval);
 };
 
 class ComplexIntervalTree
@@ -41,7 +43,7 @@ class ComplexIntervalTree
     TreeNode* nil;
     bool error;
 
-    void print_help(TreeNode* node, std::string indent, bool isLast) const;
+    void print_help(std::ostream& ofs, TreeNode* node, std::string indent, bool isLast) const;
     void maxFix(TreeNode* x);
     void maxFixAllUp(TreeNode* x);
     void leftRotate(TreeNode* x);
@@ -52,11 +54,12 @@ class ComplexIntervalTree
     static bool isOverlaps(Interval x, Interval z);
 public:
     ComplexIntervalTree();
-    void print() const;
     bool errorState() const;
     void insert(const Interval& toInsert);
     bool remove(const Interval& toRemove);
     Interval searchIntersect(const Interval& toSearch);
+
+    friend std::ostream& operator <<(std::ostream& ofs, const ComplexIntervalTree& toOut);
 };
 
 #endif
