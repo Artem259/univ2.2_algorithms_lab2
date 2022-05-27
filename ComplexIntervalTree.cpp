@@ -22,6 +22,14 @@ Complex ComplexIntervalTree::TreeNode::key() const
     return data.low;
 }
 
+void ComplexIntervalTree::clear_help(TreeNode* node)
+{
+    if(node == nil) return;
+    clear_help(node->left);
+    clear_help(node->right);
+    delete node;
+}
+
 void ComplexIntervalTree::print_help(std::ostream& ofs, TreeNode* node, std::string indent, bool isLast) const
 {
     if(node == nil) return;
@@ -246,6 +254,19 @@ bool ComplexIntervalTree::isOverlaps(Interval x, Interval z)
 ComplexIntervalTree::ComplexIntervalTree()
 {
     nil = new TreeNode(BLACK);
+    head = nil;
+    error = false;
+}
+
+ComplexIntervalTree::~ComplexIntervalTree()
+{
+    clear();
+    delete nil;
+}
+
+void ComplexIntervalTree::clear()
+{
+    clear_help(head);
     head = nil;
     error = false;
 }
