@@ -41,15 +41,18 @@ class ComplexIntervalTree
     TreeNode* nil;
 
     void print_help(TreeNode* node, std::string indent, bool isLast) const;
-    static void maxFix(TreeNode* x);
+    void maxFix(TreeNode* x);
+    void maxFixAllUp(TreeNode* x);
     void leftRotate(TreeNode* x);
     void rightRotate(TreeNode* x);
     void insertFix(TreeNode* z);
+    TreeNode* successor(TreeNode* z) const;
+    void removeFix(TreeNode* x);
 public:
     ComplexIntervalTree();
     void print() const;
     void insert(const Interval& toInsert);
-    void remove(const Interval& toRemove);
+    bool remove(const Interval& toRemove);
     Interval searchIntersect(const Interval& toSearch) const;
 };
 

@@ -38,14 +38,24 @@ void ComplexIntervalTree::print_help(TreeNode* node, std::string indent, bool is
         indent += "|     ";
     }
     std::string color = node->color == RED ? "RED" : "BLACK";
-    std::cout << "(" << node->key() << ") [" << color << "]" << std::endl;
+    std::cout << "(" << node->data.low << ";" << node->data.high << ") [" << node->max << "] [" << color << "]" << std::endl;
     print_help(node->right, indent, false);
     print_help(node->left, indent, true);
 }
 
 void ComplexIntervalTree::maxFix(TreeNode* x)
 {
+    if(x == nil) return;
     x->max = std::max(x->data.high, std::max(x->left->max, x->right->max));
+}
+
+void ComplexIntervalTree::maxFixAllUp(TreeNode* x)
+{
+    while(x != nil)
+    {
+        maxFix(x);
+        x = x->p;
+    }
 }
 
 void ComplexIntervalTree::leftRotate(TreeNode* x)
@@ -134,11 +144,92 @@ void ComplexIntervalTree::insertFix(TreeNode* z)
         }
     }
     head->color = BLACK;
-    while(z != nil)
+    maxFixAllUp(z);
+}
+
+ComplexIntervalTree::TreeNode* ComplexIntervalTree::successor(TreeNode* z) const
+{
+    auto x = z->right;
+    while(x->left != nil)
     {
-        maxFix(z);
-        z = z->p;
+        x = x->left;
     }
+    return x;
+}
+
+void ComplexIntervalTree::removeFix(TreeNode* x)
+{
+    while(x!=head && x->color==BLACK)
+    {
+        if(x == x->p->left)
+        {
+            auto w = x->p->right;
+            if(w->color == RED)
+            {
+                w->color = BLACK;
+                x->p->color = RED;
+                leftRotate(x->p);
+                w = x->p->right;
+            }
+            if(w->left->color==BLACK && w->right->color==BLACK)
+            {
+                w->color = RED;
+                maxFix(x);
+                x = x->p;
+            }
+            else
+            {
+                if(w->right->color == BLACK)
+                {
+                    w->left->color = BLACK;
+                    w->color = RED;
+                    rightRotate(w);
+                    w = x->p->right;
+                }
+                w->color = x->p->color;
+                x->p->color = BLACK;
+                w->right->color = BLACK;
+                leftRotate(x->p);
+                maxFixAllUp(x);
+                x = head;
+            }
+        }
+        else
+        {
+            auto w = x->p->left;
+            if(w->color == RED)
+            {
+                w->color = BLACK;
+                x->p->color = RED;
+                rightRotate(x->p);
+                w = x->p->left;
+            }
+            if(w->right->color==BLACK && w->left->color==BLACK)
+            {
+                w->color = RED;
+                maxFix(x);
+                x = x->p;
+            }
+            else
+            {
+                if(w->left->color == BLACK)
+                {
+                    w->right->color = BLACK;
+                    w->color = RED;
+                    leftRotate(w);
+                    w = x->p->left;
+                }
+                w->color = x->p->color;
+                x->p->color = BLACK;
+                w->left->color = BLACK;
+                rightRotate(x->p);
+                maxFixAllUp(x);
+                x = head;
+            }
+        }
+    }
+    x->color = BLACK;
+    maxFixAllUp(x);
 }
 
 ComplexIntervalTree::ComplexIntervalTree()
@@ -172,4 +263,45 @@ void ComplexIntervalTree::insert(const Interval& toInsert)
     z->color = RED;
     z->max = z->data.high;
     insertFix(z);
+}
+
+bool ComplexIntervalTree::remove(const Interval& toRemove)
+{
+    auto x = head;
+    while(x != nil)
+    {
+        if(toRemove.low < x->key())
+        {
+            x = x->left;
+        }
+        else if(toRemove.low > x->key())
+        {
+            x = x->right;
+        }
+        else
+        {
+            if(toRemove.high == x->data.high) break;
+            else x = x->right;
+        }
+    }
+    if(x == nil) return false;
+
+    auto z = x;
+    TreeNode* y;
+    if(z->left==nil || z->right==nil) y = z;
+    else y = successor(z);
+    if(y->left != nil) x = y->left;
+    else x = y->right;
+    x->p = y->p;
+    if(y->p == nil) head = x;
+    else if(y == y->p->left) y->p->left = x;
+    else y->p->right = x;
+    if(y != z)
+    {
+        z->data = y->data;
+    }
+    if(y->color == BLACK) removeFix(x);
+    else maxFixAllUp(x->p);
+    delete y;
+    return true;
 }
