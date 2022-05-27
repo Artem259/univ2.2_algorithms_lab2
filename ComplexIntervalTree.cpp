@@ -232,15 +232,26 @@ void ComplexIntervalTree::removeFix(TreeNode* x)
     maxFixAllUp(x);
 }
 
+bool ComplexIntervalTree::isOverlaps(Interval x, Interval z)
+{
+    return (x.low<=z.high && z.low<=x.high);
+}
+
 ComplexIntervalTree::ComplexIntervalTree()
 {
     nil = new TreeNode(BLACK);
     head = nil;
+    error = false;
 }
 
 void ComplexIntervalTree::print() const
 {
     print_help(head, "", true);
+}
+
+bool ComplexIntervalTree::errorState() const
+{
+    return error;
 }
 
 void ComplexIntervalTree::insert(const Interval& toInsert)
@@ -304,4 +315,20 @@ bool ComplexIntervalTree::remove(const Interval& toRemove)
     else maxFixAllUp(x->p);
     delete y;
     return true;
+}
+
+Interval ComplexIntervalTree::searchIntersect(const Interval& toSearch)
+{
+    auto x = head;
+    while(x != nil && !isOverlaps(toSearch, x->data))
+    {
+        if(x->left!=nil && x->left->max>=toSearch.low) x = x->left;
+        else x = x->right;
+    }
+    if(x == nil)
+    {
+        error = true;
+        return {Complex{0}, Complex{0}};
+    }
+    return x->data;
 }

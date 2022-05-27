@@ -39,6 +39,7 @@ class ComplexIntervalTree
 
     TreeNode* head;
     TreeNode* nil;
+    bool error;
 
     void print_help(TreeNode* node, std::string indent, bool isLast) const;
     void maxFix(TreeNode* x);
@@ -48,12 +49,14 @@ class ComplexIntervalTree
     void insertFix(TreeNode* z);
     TreeNode* successor(TreeNode* z) const;
     void removeFix(TreeNode* x);
+    static bool isOverlaps(Interval x, Interval z);
 public:
     ComplexIntervalTree();
     void print() const;
+    bool errorState() const;
     void insert(const Interval& toInsert);
     bool remove(const Interval& toRemove);
-    Interval searchIntersect(const Interval& toSearch) const;
+    Interval searchIntersect(const Interval& toSearch);
 };
 
 #endif
