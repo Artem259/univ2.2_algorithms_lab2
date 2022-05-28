@@ -339,6 +339,29 @@ bool ComplexIntervalTree::remove(const Interval& toRemove)
     return true;
 }
 
+bool ComplexIntervalTree::search(const Interval& toSearch) const
+{
+    auto x = head;
+    while(x != nil)
+    {
+        if(toSearch.low < x->key())
+        {
+            x = x->left;
+        }
+        else if(toSearch.low > x->key())
+        {
+            x = x->right;
+        }
+        else
+        {
+            if(toSearch.high == x->data.high) break;
+            else x = x->right;
+        }
+    }
+    if(x == nil) return false;
+    return true;
+}
+
 Interval ComplexIntervalTree::searchIntersect(const Interval& toSearch)
 {
     auto x = head;

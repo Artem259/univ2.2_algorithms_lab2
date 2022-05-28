@@ -60,6 +60,7 @@ public:
     bool errorState() const;
     void insert(const Interval& toInsert);
     bool remove(const Interval& toRemove);
+    bool search(const Interval& toSearch) const;
     Interval searchIntersect(const Interval& toSearch);
 
     friend std::ostream& operator <<(std::ostream& ofs, const ComplexIntervalTree& toOut);
